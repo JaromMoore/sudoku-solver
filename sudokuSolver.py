@@ -1,8 +1,19 @@
 from tkinter import *
 from tkinter import ttk
 
+'''
+
+'''
+
+
+
+
+
+
+
 SNumberList = []
 solvedSNumberList = [0] * 81
+possibleList = []
 
 def createWindow():
     window = Tk()
@@ -45,6 +56,39 @@ def createWindow():
     
     frame.focus()
     window.mainloop()
+
+def getIndexRow(num):
+    if num <= 8:
+        return 0
+    elif num <= 17:
+        return 1
+    elif num <= 26:
+        return 2
+    elif num <= 35:
+        return 3
+    elif num <= 44:
+        return 4
+    elif num <= 53:
+        return 5
+    elif num <= 62:
+        return 6
+    elif num <= 71:
+        return 7
+    elif num <= 80:
+        return 8
+    else:
+        return None
+
+def getIndexCol(num):
+    #if num in (0, 9, 18, 27, 36, 45, 54, 63, 72):
+        return 0
+
+def fillPossible():
+    for i in range(0,80):
+        if SNumberList[i] == 0:
+            return
+
+
 
 def solve():
     
@@ -160,6 +204,7 @@ def getBlock(blockNum):
 
 def main():
     createWindow()
+    print(getIndexCol(9))
 
 if __name__ == "__main__":
     main()
