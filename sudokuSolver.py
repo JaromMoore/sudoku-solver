@@ -11,7 +11,7 @@ from tkinter import ttk
 
 
 
-SNumberList = []
+SNumberList = [9, 0, 0, 3, 2, 6, 0, 0, 4, 0, 7, 0, 0, 8, 9, 1, 3, 6, 0, 3, 1, 0, 0, 0, 5, 4, 0, 3, 0, 0, 8, 0, 4, 7, 0, 0, 0, 8, 0, 3, 0, 1, 6, 0, 0, 0, 4, 2, 0, 0, 5, 0, 0, 8, 7, 1, 9, 0, 6, 0, 4, 5, 3, 0, 0, 0, 5, 0, 0, 0, 0, 2, 0, 0, 4, 0, 0, 0, 0, 1]
 solvedSNumberList = [0] * 81
 possibleList = []
 
@@ -136,7 +136,14 @@ def parsePossibleNums():
     for i in range(0,80):
         if len(possibleList[i]) == 1:
             SNumberList[i] = possibleList[i][1]
-    
+
+    for i in range(0,8):
+        counter = 0
+        for j in range(0,8):
+            for k in range(1,9):
+                if  getPossibleBlock(i)[j].count(k) == 1:
+                    return
+ ########   
 
 
 
@@ -151,7 +158,7 @@ def getColumn(colNum):
     temp = []
     for i in range(0,8):
         temp.append(SNumberList[colNum + i*9])
-    return SNumberList[colNum]
+    return temp
 
 def getBlock(blockNum):
     temp = []
@@ -343,12 +350,21 @@ def getPossibleBlock(blockNum):
             temp.append(possibleList[80])
     return temp
         
+def getPossibleRow(rowNum):
+    return possibleList[rowNum*9:(rowNum+1)*9-1]
 
 
+def getPossibleColumn(colNum):
+    temp = []
+    for i in range(0,8):
+        temp.append(possibleList[colNum + i*9])
+    return temp
 
 def main():
-    createWindow()
-    print(getIndexCol(9))
+    #createWindow()
+    fillPossibleNums()
+    print(getPossibleBlock(0))
+
 
 if __name__ == "__main__":
     main()
