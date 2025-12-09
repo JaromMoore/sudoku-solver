@@ -145,8 +145,6 @@ def parsePossibleNums():
                     return
  ########   
 
-
-
 def solve():
     
     return
