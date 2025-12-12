@@ -57,6 +57,8 @@ def createWindow():
     frame.focus()
     window.mainloop()
 
+
+#get index of row from index of main list
 def getIndexRow(num):
     if num <= 8:
         return 0
@@ -79,6 +81,8 @@ def getIndexRow(num):
     else:
         return None
 
+
+#get index of column from index of main list
 def getIndexCol(num):
     if num in (0, 9, 18, 27, 36, 45, 54, 63, 72):
         return 0
@@ -101,6 +105,7 @@ def getIndexCol(num):
     else:
         return None
 
+#get index of box from index of main list
 def getIndexBlock(num):
     if num in (0, 1, 2, 9, 10, 11, 18, 19, 20):
         return 0
@@ -122,7 +127,8 @@ def getIndexBlock(num):
         return 8
     else:
         return None
-    
+
+#fill possible numbers   
 def fillPossibleNums():
     for i in range(0,80):
         temp = []
@@ -132,32 +138,41 @@ def fillPossibleNums():
                     temp.append(j)
         possibleList.append(temp)   
 
+
+#fill main list from possible list
 def parsePossibleNums():
+    #fill blocks with only one possible number
     for i in range(0,80):
         if len(possibleList[i]) == 1:
             SNumberList[i] = possibleList[i][1]
 
+    #loop thru block indexes
     for i in range(0,8):
         counter = 0
+        #loop thru possible block sublist
         for j in range(0,8):
+            #loop thru numbers
             for k in range(1,9):
                 if  getPossibleBlock(i)[j].count(k) == 1:
-                    return
+                    setFromBlock(i, j, k)
  ########   
 
 def solve():
     
     return
 
+#get row sublist from row index
 def getRow(rowNum):
     return SNumberList[rowNum*9:(rowNum+1)*9-1]
 
+#get col sublist from col index
 def getColumn(colNum):
     temp = []
     for i in range(0,8):
         temp.append(SNumberList[colNum + i*9])
     return temp
 
+#get block sublist frm block index
 def getBlock(blockNum):
     temp = []
     match blockNum:
@@ -252,7 +267,8 @@ def getBlock(blockNum):
             temp.append(SNumberList[79])
             temp.append(SNumberList[80])
     return temp
-        
+
+#get possible block sublist from block index       
 def getPossibleBlock(blockNum):
     temp = []
     match blockNum:
@@ -347,16 +363,202 @@ def getPossibleBlock(blockNum):
             temp.append(possibleList[79])
             temp.append(possibleList[80])
     return temp
-        
+
+#get possible row sublist from row index       
 def getPossibleRow(rowNum):
     return possibleList[rowNum*9:(rowNum+1)*9-1]
 
-
+#get possible col sublist from col index
 def getPossibleColumn(colNum):
     temp = []
     for i in range(0,8):
         temp.append(possibleList[colNum + i*9])
     return temp
+
+def setFromBlock(blockIndex, sublistIndex, settingNum):
+    match blockIndex:
+        case 0 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[0] = settingNum
+                case 1:
+                    SNumberList[1] = settingNum
+                case 2: 
+                    SNumberList[2] = settingNum
+                case 3:
+                    SNumberList[9] = settingNum
+                case 4:
+                    SNumberList[10] = settingNum
+                case 5:
+                    SNumberList[11] = settingNum
+                case 6:
+                    SNumberList[18] = settingNum
+                case 7:
+                    SNumberList[19] = settingNum
+                case 8:
+                    SNumberList[20] = settingNum
+        case 1 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[3] = settingNum
+                case 1:
+                    SNumberList[4] = settingNum
+                case 2: 
+                    SNumberList[5] = settingNum
+                case 3:
+                    SNumberList[12] = settingNum
+                case 4:
+                    SNumberList[13] = settingNum
+                case 5:
+                    SNumberList[14] = settingNum
+                case 6:
+                    SNumberList[21] = settingNum
+                case 7:
+                    SNumberList[22] = settingNum
+                case 8:
+                    SNumberList[23] = settingNum
+        case 2 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[6] = settingNum
+                case 1:
+                    SNumberList[7] = settingNum
+                case 2: 
+                    SNumberList[8] = settingNum
+                case 3:
+                    SNumberList[15] = settingNum
+                case 4:
+                    SNumberList[16] = settingNum
+                case 5:
+                    SNumberList[17] = settingNum
+                case 6:
+                    SNumberList[24] = settingNum
+                case 7:
+                    SNumberList[25] = settingNum
+                case 8:
+                    SNumberList[26] = settingNum
+        case 3 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[27] = settingNum
+                case 1:
+                    SNumberList[28] = settingNum
+                case 2: 
+                    SNumberList[29] = settingNum
+                case 3:
+                    SNumberList[36] = settingNum
+                case 4:
+                    SNumberList[37] = settingNum
+                case 5:
+                    SNumberList[38] = settingNum
+                case 6:
+                    SNumberList[45] = settingNum
+                case 7:
+                    SNumberList[46] = settingNum
+                case 8:
+                    SNumberList[47] = settingNum
+        case 4 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[30] = settingNum
+                case 1:
+                    SNumberList[31] = settingNum
+                case 2: 
+                    SNumberList[32] = settingNum
+                case 3:
+                    SNumberList[39] = settingNum
+                case 4:
+                    SNumberList[40] = settingNum
+                case 5:
+                    SNumberList[41] = settingNum
+                case 6:
+                    SNumberList[48] = settingNum
+                case 7:
+                    SNumberList[49] = settingNum
+                case 8:
+                    SNumberList[50] = settingNum
+        case 5 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[33] = settingNum
+                case 1:
+                    SNumberList[34] = settingNum
+                case 2: 
+                    SNumberList[35] = settingNum
+                case 3:
+                    SNumberList[42] = settingNum
+                case 4:
+                    SNumberList[43] = settingNum
+                case 5:
+                    SNumberList[44] = settingNum
+                case 6:
+                    SNumberList[51] = settingNum
+                case 7:
+                    SNumberList[52] = settingNum
+                case 8:
+                    SNumberList[53] = settingNum
+        case 6 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[54] = settingNum
+                case 1:
+                    SNumberList[55] = settingNum
+                case 2: 
+                    SNumberList[56] = settingNum
+                case 3:
+                    SNumberList[63] = settingNum
+                case 4:
+                    SNumberList[64] = settingNum
+                case 5:
+                    SNumberList[65] = settingNum
+                case 6:
+                    SNumberList[72] = settingNum
+                case 7:
+                    SNumberList[73] = settingNum
+                case 8:
+                    SNumberList[74] = settingNum
+        case 7 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[57] = settingNum
+                case 1:
+                    SNumberList[58] = settingNum
+                case 2: 
+                    SNumberList[59] = settingNum
+                case 3:
+                    SNumberList[66] = settingNum
+                case 4:
+                    SNumberList[67] = settingNum
+                case 5:
+                    SNumberList[68] = settingNum
+                case 6:
+                    SNumberList[75] = settingNum
+                case 7:
+                    SNumberList[76] = settingNum
+                case 8:
+                    SNumberList[77] = settingNum
+        case 8 :
+            match sublistIndex:
+                case 0:
+                    SNumberList[60] = settingNum
+                case 1:
+                    SNumberList[61] = settingNum
+                case 2: 
+                    SNumberList[62] = settingNum
+                case 3:
+                    SNumberList[69] = settingNum
+                case 4:
+                    SNumberList[70] = settingNum
+                case 5:
+                    SNumberList[71] = settingNum
+                case 6:
+                    SNumberList[78] = settingNum
+                case 7:
+                    SNumberList[79] = settingNum
+                case 8:
+                    SNumberList[80] = settingNum
+        
+
 
 def main():
     #createWindow()
