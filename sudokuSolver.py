@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
-
+import copy
+import random
+import sys
 '''
 
 '''
@@ -11,9 +13,16 @@ from tkinter import ttk
 
 
 
-SNumberList = [9, 0, 0, 3, 2, 6, 0, 0, 4, 0, 7, 0, 0, 8, 9, 1, 3, 6, 0, 3, 1, 0, 0, 0, 5, 4, 0, 3, 0, 0, 8, 0, 4, 7, 0, 0, 0, 8, 0, 3, 0, 1, 6, 0, 0, 0, 4, 2, 0, 0, 5, 0, 0, 8, 7, 1, 9, 0, 6, 0, 4, 5, 3, 0, 0, 0, 5, 0, 0, 0, 0, 2, 0, 0, 4, 0, 0, 0, 0, 1]
+SNumberList = [9, 0, 0, 3, 2, 6, 0, 0, 4, 0, 7, 0, 0, 8, 9, 1, 3, 6, 0, 3, 1, 0, 0, 0, 5, 4, 0, 3, 0, 0, 8, 0, 4, 7, 0, 0, 0, 8, 0, 3, 0, 1, 6, 0, 0, 0, 4, 2, 0, 0, 5, 0, 0, 8, 7, 1, 9, 0, 6, 0, 4, 5, 3, 0, 0, 0, 5, 0, 0, 0, 0, 2, 0, 0, 4, 0, 0, 0, 0, 1, 0]
+preSNumberList = [0] * 81
+#SNumberList = []
 solvedSNumberList = [0] * 81
 possibleList = []
+listBackups = [[]]
+#listbackups[0] is always one change behind current, other indexes are for random choices
+lastFiftyFiftyNum = []
+won = False
+randomCounter = 0
 
 def createWindow():
     window = Tk()
@@ -26,30 +35,30 @@ def createWindow():
     SFrame.grid(column=(0), row=(0), sticky=(W))
 
     SEntryContainer = []
-    for i in range(0,80):
-        SNumberList.append(StringVar())
-        SEntryContainer.append(ttk.Entry(SFrame, textvariable=SNumberList[i]))
+    for i in range(0,81):
+        preSNumberList[i] = StringVar()
+        SEntryContainer.append(ttk.Entry(SFrame, textvariable=preSNumberList[i]))
 
     counter = 0
-    for i in range(0,8):
-        for j in range (0,8):
+    for i in range(0,9):
+        for j in range (0,9):
             SEntryContainer[counter].grid(column=(i), row=(j))
             SEntryContainer[counter]['width'] = 1
             counter += 1
 
-    solveButton = ttk.Button(frame, text="solve")
+    solveButton = ttk.Button(frame, text="solve", command=solve)
     solveButton.grid(column=(1), row=(0))
 
     solvedSFrame = ttk.Frame(frame, padding=(10, 10, 10, 10))
     solvedSFrame.grid(column=(2), row=(0), sticky=(E))
 
     solvedSLabelContainer = []
-    for i in range(0, 80):
+    for i in range(0, 81):
         solvedSLabelContainer.append(ttk.Label(solvedSFrame, text=solvedSNumberList[i]))
 
     counter = 0
-    for i in range(0,8):
-        for j in range (0,8):
+    for i in range(0,9):
+        for j in range (0,9):
             solvedSLabelContainer[counter].grid(column=(i), row=(j))
             solvedSLabelContainer[counter]['width'] = 1
             counter += 1
@@ -130,10 +139,10 @@ def getIndexBlock(num):
 
 #fill possible numbers   
 def fillPossibleNums():
-    for i in range(0,80):
+    for i in range(0,81):
         temp = []
         if SNumberList[i] == 0:
-            for j in range(1,9):
+            for j in range(1,10):
                 if j not in getRow(getIndexRow(i)) and j not in getColumn(getIndexCol(i)) and j not in getBlock(getIndexBlock(i)):
                     temp.append(j)
         possibleList.append(temp)   
@@ -142,24 +151,81 @@ def fillPossibleNums():
 #fill main list from possible list
 def parsePossibleNums():
     #fill blocks with only one possible number
-    for i in range(0,80):
+    for i in range(0,81):
         if len(possibleList[i]) == 1:
-            SNumberList[i] = possibleList[i][1]
+            SNumberList[i] = possibleList[i][0]
 
     #loop thru block indexes
-    for i in range(0,8):
+    for i in range(0,9):
         counter = 0
         #loop thru possible block sublist
-        for j in range(0,8):
+        for j in range(0,9):
             #loop thru numbers
-            for k in range(1,9):
+            for k in range(1,10):
                 if  getPossibleBlock(i)[j].count(k) == 1:
                     setFromBlock(i, j, k)
+                if getPossibleColumn(i)[j].count(k) == 1:
+                    setFromCol(i, j, k)
+                if getPossibleRow(i)[j].count(k) == 1:
+                    setFromRow(i, j, k)
+
  ########   
 
+#checks if the main list has been changed
+def isChanged():
+    return listBackups[0] != SNumberList
+
+#checks for win
+def checkForWin():
+    for i in SNumberList:
+        if i == 0:
+            return
+    won = True
+
+#fills the first open slot with a random number from possibleList
+def fillRandom():
+
+    for i in range(0,81):
+        if len(possibleList[i]) != 0:
+            SNumberList[i] = possibleList[i][random.randint(0, len(possibleList[i]) - 1)]
+    global randomCounter
+    randomCounter += 1
+    if randomCounter > 10000:
+        sys.exit("unsolvable")
+
+
+#checks if something was filled wrong, resets to the last backup if so
+def wentWrong():
+    global SNumberList
+    for i in range(0,81):
+        if len(possibleList[i]) == 0:
+            if SNumberList[i] == 0:
+                SNumberList = copy.deepcopy(listBackups[-1])
+
+#converts the StringVar SNumberlist to ints
+def stringVarToInt():
+    for i in preSNumberList:
+        temp = i.get()
+        if temp == "":
+            SNumberList.append(0)
+        else:
+            SNumberList.append(int(temp))
+
 def solve():
-    
-    return
+    #stringVarToInt()
+    while not won:
+        if(isChanged()):
+            listBackups[0] = copy.deepcopy(SNumberList)
+            fillPossibleNums()
+            parsePossibleNums()
+            checkForWin()
+            wentWrong()
+        elif(not isChanged()):
+            listBackups.append(SNumberList)
+            fillRandom()
+    solvedSNumberList = SNumberList
+
+       
 
 #get row sublist from row index
 def getRow(rowNum):
@@ -168,7 +234,7 @@ def getRow(rowNum):
 #get col sublist from col index
 def getColumn(colNum):
     temp = []
-    for i in range(0,8):
+    for i in range(0,9):
         temp.append(SNumberList[colNum + i*9])
     return temp
 
@@ -366,12 +432,12 @@ def getPossibleBlock(blockNum):
 
 #get possible row sublist from row index       
 def getPossibleRow(rowNum):
-    return possibleList[rowNum*9:(rowNum+1)*9-1]
+    return possibleList[rowNum*9:(rowNum+1)*9]
 
 #get possible col sublist from col index
 def getPossibleColumn(colNum):
     temp = []
-    for i in range(0,8):
+    for i in range(0,9):
         temp.append(possibleList[colNum + i*9])
     return temp
 
@@ -558,12 +624,17 @@ def setFromBlock(blockIndex, sublistIndex, settingNum):
                 case 8:
                     SNumberList[80] = settingNum
         
+def setFromCol(colIndex, sublistIndex, settingNum):
+    SNumberList[colIndex + sublistIndex*9] = settingNum
 
+def setFromRow(rowIndex, sublistIndex, settingNum):
+    SNumberList[rowIndex*9 + sublistIndex] = settingNum
 
 def main():
-    #createWindow()
-    fillPossibleNums()
-    print(getPossibleBlock(0))
+    createWindow()
+    
+    
+    
 
 
 if __name__ == "__main__":
