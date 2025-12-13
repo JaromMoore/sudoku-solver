@@ -13,7 +13,7 @@ import sys
 
 
 
-SNumberList = [9, 0, 0, 3, 2, 6, 0, 0, 4, 0, 7, 0, 0, 8, 9, 1, 3, 6, 0, 3, 1, 0, 0, 0, 5, 4, 0, 3, 0, 0, 8, 0, 4, 7, 0, 0, 0, 8, 0, 3, 0, 1, 6, 0, 0, 0, 4, 2, 0, 0, 5, 0, 0, 8, 7, 1, 9, 0, 6, 0, 4, 5, 3, 0, 0, 0, 5, 0, 0, 0, 0, 2, 0, 0, 4, 0, 0, 0, 0, 1, 0]
+SNumberList = [0, 1, 0, 0, 0, 8, 6, 7, 2, 4, 2, 8, 0, 0, 0, 0, 1, 0, 5, 0, 0, 9, 1, 0, 0, 8, 4, 6, 0, 2, 0, 0, 0, 8, 4, 9, 9, 8, 4, 0, 0, 3, 0, 0, 0, 0, 0, 0, 4, 0, 9, 2, 0, 6, 2, 4, 1, 7, 0, 0, 0, 0, 0, 0, 5, 0, 2, 9, 0, 0, 0, 7, 0, 0, 0, 0, 5, 0, 4, 2, 0]
 preSNumberList = [0] * 81
 #SNumberList = []
 solvedSNumberList = [0] * 81
@@ -25,6 +25,9 @@ won = False
 randomCounter = 0
 
 def createWindow():
+    global preSNumberList
+    global solvedSNumberList
+
     window = Tk()
     window.title("sukoku solver")
 
@@ -139,71 +142,132 @@ def getIndexBlock(num):
 
 #fill possible numbers   
 def fillPossibleNums():
+    global SNumberList
+    global possibleList
+
     for i in range(0,81):
         temp = []
         if SNumberList[i] == 0:
             for j in range(1,10):
-                if j not in getRow(getIndexRow(i)) and j not in getColumn(getIndexCol(i)) and j not in getBlock(getIndexBlock(i)):
+                if (j not in getRow(getIndexRow(i))) and (j not in getColumn(getIndexCol(i))) and (j not in getBlock(getIndexBlock(i))):
                     temp.append(j)
         possibleList.append(temp)   
 
+def flatten(xss):
+    return [x for xs in xss for x in xs]
 
 #fill main list from possible list
 def parsePossibleNums():
+    global SNumberList
+    global possibleList
     #fill blocks with only one possible number
     for i in range(0,81):
         if len(possibleList[i]) == 1:
-            SNumberList[i] = possibleList[i][0]
+            if SNumberList[i] == 0:
+                print(f'changed {SNumberList[i]} to {possibleList[i][0]}')
+                SNumberList[i] = possibleList[i][0]
+                fillPossibleNums()
 
+    
+    temp = []
     #loop thru block indexes
     for i in range(0,9):
-        counter = 0
-        #loop thru possible block sublist
-        for j in range(0,9):
-            #loop thru numbers
-            for k in range(1,10):
-                if  getPossibleBlock(i)[j].count(k) == 1:
-                    setFromBlock(i, j, k)
-                if getPossibleColumn(i)[j].count(k) == 1:
-                    setFromCol(i, j, k)
-                if getPossibleRow(i)[j].count(k) == 1:
-                    setFromRow(i, j, k)
+        temp = flatten(getPossibleBlock(i))
+        #find if there's only one of a number
+        for j in range(1,10):
+            if temp.count(j) == 1:
+                #find where the single number
+                for k in range(0,9):
+                    if j in getPossibleBlock(i)[k]:
+                        setFromBlock(i, k, j)
+                        fillPossibleNums()
 
- ########   
+
+            
+    
+    fillPossibleNums()  
+
+    temp = []
+    #loop thru block indexes
+    for i in range(0,9):
+        temp = flatten(getPossibleColumn(i))
+        #find if there's only one of a number
+        for j in range(1,10):
+            if temp.count(j) == 1:
+                #find where the single number
+                for k in range(0,9):
+                    if j in getPossibleColumn(i)[k]:
+                        setFromCol(i, k, j)
+                        fillPossibleNums()
+    
+    fillPossibleNums()
+
+    temp = []
+    #loop thru block indexes
+    for i in range(0,9):
+        temp = flatten(getPossibleRow(i))
+        #find if there's only one of a number
+        for j in range(1,10):
+            if temp.count(j) == 1:
+                #find where the single number
+                for k in range(0,9):
+                    if j in getPossibleRow(i)[k]:
+                        setFromRow(i, k, j)
+                        fillPossibleNums()
+    
+
+def printInGrid(list):
+    for i in range(0,9):
+        print(list[i*9:(i+1)*9])
+
 
 #checks if the main list has been changed
 def isChanged():
+    global SNumberList
+    global listBackups
+    #print(SNumberList)
+    #print(listBackups[0])
+    #print(listBackups[0] != SNumberList)
     return listBackups[0] != SNumberList
 
 #checks for win
 def checkForWin():
-    for i in SNumberList:
-        if i == 0:
-            return
-    won = True
+    global SNumberList
+    global won
+    if 0 not in SNumberList:
+        won = True
+    print(f"won: {won}")
 
 #fills the first open slot with a random number from possibleList
 def fillRandom():
+    global SNumberList
+    global possibleList
 
     for i in range(0,81):
         if len(possibleList[i]) != 0:
             SNumberList[i] = possibleList[i][random.randint(0, len(possibleList[i]) - 1)]
     global randomCounter
     randomCounter += 1
-    if randomCounter > 10000:
+    if randomCounter > 100:
         sys.exit("unsolvable")
 
 
 #checks if something was filled wrong, resets to the last backup if so
 def wentWrong():
     global SNumberList
+    global possibleList
+
     for i in range(0,81):
         if len(possibleList[i]) == 0:
             if SNumberList[i] == 0:
                 SNumberList = copy.deepcopy(listBackups[-1])
+                print("went wrong")
 
 #converts the StringVar SNumberlist to ints
 def stringVarToInt():
+    global SNumberList
+    global preSNumberList
+
     for i in preSNumberList:
         temp = i.get()
         if temp == "":
@@ -212,16 +276,30 @@ def stringVarToInt():
             SNumberList.append(int(temp))
 
 def solve():
+    global solvedSNumberList
+    global SNumberList
+    global listBackups
+
     #stringVarToInt()
+    loopCounter = 0
+
     while not won:
         if(isChanged()):
             listBackups[0] = copy.deepcopy(SNumberList)
+            
             fillPossibleNums()
+
+            printInGrid(SNumberList)
+            printInGrid(possibleList)
+
             parsePossibleNums()
             checkForWin()
             wentWrong()
+            loopCounter += 1
+            print (loopCounter)
         elif(not isChanged()):
             listBackups.append(SNumberList)
+            print("added random")
             fillRandom()
     solvedSNumberList = SNumberList
 
@@ -229,10 +307,14 @@ def solve():
 
 #get row sublist from row index
 def getRow(rowNum):
-    return SNumberList[rowNum*9:(rowNum+1)*9-1]
+    global SNumberList
+
+    return SNumberList[rowNum*9:(rowNum+1)*9]
 
 #get col sublist from col index
 def getColumn(colNum):
+    global SNumberList
+
     temp = []
     for i in range(0,9):
         temp.append(SNumberList[colNum + i*9])
@@ -240,6 +322,8 @@ def getColumn(colNum):
 
 #get block sublist frm block index
 def getBlock(blockNum):
+    global SNumberList
+
     temp = []
     match blockNum:
         case 0:
@@ -336,6 +420,8 @@ def getBlock(blockNum):
 
 #get possible block sublist from block index       
 def getPossibleBlock(blockNum):
+    global possibleList
+
     temp = []
     match blockNum:
         case 0:
@@ -432,16 +518,31 @@ def getPossibleBlock(blockNum):
 
 #get possible row sublist from row index       
 def getPossibleRow(rowNum):
+    global possibleList
+
     return possibleList[rowNum*9:(rowNum+1)*9]
 
 #get possible col sublist from col index
 def getPossibleColumn(colNum):
+    global possibleList
+
     temp = []
     for i in range(0,9):
         temp.append(possibleList[colNum + i*9])
     return temp
 
+def checkSet(index, settingNum):
+    if SNumberList[index] == 0:
+        SNumberList[index] == settingNum
+
+def setFromBlock2(blockIndex, sublistIndex, settingNum):
+    global SNumberList
+    index = blockIndex
+    checkSet()
+
 def setFromBlock(blockIndex, sublistIndex, settingNum):
+    global SNumberList
+    print("changed from block")
     match blockIndex:
         case 0 :
             match sublistIndex:
@@ -625,10 +726,16 @@ def setFromBlock(blockIndex, sublistIndex, settingNum):
                     SNumberList[80] = settingNum
         
 def setFromCol(colIndex, sublistIndex, settingNum):
-    SNumberList[colIndex + sublistIndex*9] = settingNum
+    global SNumberList
+    if SNumberList[colIndex + sublistIndex*9] == 0:
+        SNumberList[colIndex + sublistIndex*9] = settingNum
+        print(f"changed {SNumberList[colIndex + sublistIndex*9]} to {settingNum}")
 
 def setFromRow(rowIndex, sublistIndex, settingNum):
-    SNumberList[rowIndex*9 + sublistIndex] = settingNum
+    global SNumberList
+    if SNumberList[rowIndex*9 + sublistIndex] == 0:
+        SNumberList[rowIndex*9 + sublistIndex] = settingNum
+        print(f"changed{SNumberList[rowIndex*9 + sublistIndex]} to {settingNum}")
 
 def main():
     createWindow()
