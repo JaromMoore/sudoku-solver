@@ -12,11 +12,11 @@ import sys
 
 
 
-
+#to switch to manual input, comment line 16 out, uncomment line 18, and uncomment stringVarToInt() in solve()
 SNumberList = [0, 1, 0, 0, 0, 8, 6, 7, 2, 4, 2, 8, 0, 0, 0, 0, 1, 0, 5, 0, 0, 9, 1, 0, 0, 8, 4, 6, 0, 2, 0, 0, 0, 8, 4, 9, 9, 8, 4, 0, 0, 3, 0, 0, 0, 0, 0, 0, 4, 0, 9, 2, 0, 6, 2, 4, 1, 7, 0, 0, 0, 0, 0, 0, 5, 0, 2, 9, 0, 0, 0, 7, 0, 0, 0, 0, 5, 0, 4, 2, 0]
 preSNumberList = [0] * 81
 #SNumberList = []
-solvedSNumberList = [0] * 81
+solvedSNumberList = []
 possibleList = []
 listBackups = [[]]
 #listbackups[0] is always one change behind current, other indexes are for random choices
@@ -52,19 +52,20 @@ def createWindow():
     solveButton = ttk.Button(frame, text="solve", command=solve)
     solveButton.grid(column=(1), row=(0))
 
-    solvedSFrame = ttk.Frame(frame, padding=(10, 10, 10, 10))
-    solvedSFrame.grid(column=(2), row=(0), sticky=(E))
+    #solvedSFrame = ttk.Frame(frame, padding=(10, 10, 10, 10))
+    #solvedSFrame.grid(column=(2), row=(0), sticky=(E))
 
-    solvedSLabelContainer = []
-    for i in range(0, 81):
-        solvedSLabelContainer.append(ttk.Label(solvedSFrame, text=solvedSNumberList[i]))
+    #solvedSLabelContainer = []
+    #for i in range(0, 81):
+    #    solvedSNumberList.append(StringVar())
+    #    solvedSLabelContainer.append(ttk.Label(solvedSFrame, text=solvedSNumberList[i]))
 
-    counter = 0
-    for i in range(0,9):
-        for j in range (0,9):
-            solvedSLabelContainer[counter].grid(column=(i), row=(j))
-            solvedSLabelContainer[counter]['width'] = 1
-            counter += 1
+    #counter = 0
+    #for i in range(0,9):
+    #    for j in range (0,9):
+    #        solvedSLabelContainer[counter].grid(column=(i), row=(j))
+            #solvedSLabelContainer[counter]['width'] = 1
+    #        counter += 1
     
     frame.focus()
     window.mainloop()
@@ -144,7 +145,7 @@ def getIndexBlock(num):
 def fillPossibleNums():
     global SNumberList
     global possibleList
-
+    possibleList.clear()
     for i in range(0,81):
         temp = []
         if SNumberList[i] == 0:
@@ -280,7 +281,7 @@ def solve():
     global SNumberList
     global listBackups
 
-    #stringVarToInt()
+ #   stringVarToInt()
     loopCounter = 0
 
     while not won:
@@ -301,9 +302,9 @@ def solve():
             listBackups.append(SNumberList)
             print("added random")
             fillRandom()
-    solvedSNumberList = SNumberList
 
-       
+    for i in range(0,81):
+        preSNumberList[i].set(SNumberList[i])  
 
 #get row sublist from row index
 def getRow(rowNum):
@@ -531,15 +532,7 @@ def getPossibleColumn(colNum):
         temp.append(possibleList[colNum + i*9])
     return temp
 
-def checkSet(index, settingNum):
-    if SNumberList[index] == 0:
-        SNumberList[index] == settingNum
-
-def setFromBlock2(blockIndex, sublistIndex, settingNum):
-    global SNumberList
-    index = blockIndex
-    checkSet()
-
+#set SNumberlist from block indexes
 def setFromBlock(blockIndex, sublistIndex, settingNum):
     global SNumberList
     print("changed from block")
@@ -724,18 +717,21 @@ def setFromBlock(blockIndex, sublistIndex, settingNum):
                     SNumberList[79] = settingNum
                 case 8:
                     SNumberList[80] = settingNum
-        
+ 
+#set SNumberlist from col indexes       
 def setFromCol(colIndex, sublistIndex, settingNum):
     global SNumberList
     if SNumberList[colIndex + sublistIndex*9] == 0:
-        SNumberList[colIndex + sublistIndex*9] = settingNum
         print(f"changed {SNumberList[colIndex + sublistIndex*9]} to {settingNum}")
-
+        SNumberList[colIndex + sublistIndex*9] = settingNum
+        
+#set SNumberlist from row indexes
 def setFromRow(rowIndex, sublistIndex, settingNum):
     global SNumberList
     if SNumberList[rowIndex*9 + sublistIndex] == 0:
-        SNumberList[rowIndex*9 + sublistIndex] = settingNum
         print(f"changed{SNumberList[rowIndex*9 + sublistIndex]} to {settingNum}")
+        SNumberList[rowIndex*9 + sublistIndex] = settingNum
+        
 
 def main():
     createWindow()
